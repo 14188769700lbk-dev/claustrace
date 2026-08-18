@@ -24,7 +24,7 @@ const checkedPdfDigest = createHash("sha256")
 
 const secretPatterns = [
   /pdf_(?:live|test)_[A-Za-z0-9_-]{12,}/gi,
-  /(?:NUTRIENT_API_KEY|NUTRIENT_EXTRACTION_API_KEY|SERPAPI_API_KEY)\s*=\s*[^\s+][^\r\n]*/gi,
+  /(?:NUTRIENT_API_KEY|NUTRIENT_EXTRACTION_API_KEY|SERPAPI_API_KEY)[ \t]*=[ \t]*[^\s+\r\n][^\r\n]*/gi,
   /\b[0-9a-f]{64}\b/gi,
 ];
 

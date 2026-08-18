@@ -8,7 +8,7 @@ export const demoCase: ClauseTraceCase = {
   title: "Orders API field migration addendum",
   mode: "synthetic_fixture",
   state: "needs_review",
-  documentUrl: "/synthetic-api-change-addendum.pdf",
+  documentUrl: "./synthetic-api-change-addendum.pdf",
   documentDigest:
     "sha256:56aedfc5d0df96b3b6632784aeb94702deb07d5bb11aefdeccadff44d6861cc7",
   officialDomainAllowlist: ["docs.northstar.invalid"],
