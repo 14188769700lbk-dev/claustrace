@@ -4,6 +4,8 @@ ClauseTrace turns a contract or API-change notice into cited data-migration cons
 
 ClauseTrace is an engineering risk tool, not a lawyer. It organizes evidence and proposed controls for review. It does not provide legal advice, determine enforceability, or authorize a production migration.
 
+![ClauseTrace public dry run showing the synthetic review and evidence boundary](docs/assets/claustrace-overview.png)
+
 ## Build provenance
 
 - Event: DevNetwork API + Cloud + AI Hackathon 2026

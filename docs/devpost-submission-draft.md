@@ -109,11 +109,19 @@ SerpApi supplies structured, live official-domain search results that create a s
 
 Use screenshots that contain synthetic data only and no browser account chrome, request IDs, provider keys, email addresses, or dashboard identifiers.
 
-1. Full review console with the synthetic addendum and extracted fields.
-2. One field showing its Nutrient citation box and relative score.
-3. SerpApi official-domain results visibly labeled `discovered`.
-4. Approval gate with the unresolved item still blocking packet approval.
-5. Evidence-packet preview with extracted, corrected, proposed, and unresolved content distinguished.
+1. [`claustrace-overview.png`](assets/claustrace-overview.png) — full review console with the synthetic addendum and dry-run boundary.
+2. [`claustrace-cited-review.png`](assets/claustrace-cited-review.png) — one field with its citation box and fixture score, visibly distinguished from live Nutrient provenance.
+3. [`claustrace-source-discovery.png`](assets/claustrace-source-discovery.png) — allowlisted and outside-domain results with discovery/evidence status shown separately.
+4. [`claustrace-evidence-packet.png`](assets/claustrace-evidence-packet.png) — generated draft, unresolved blockers, and the `Not sealed` boundary.
+5. [`claustrace-mobile.png`](assets/claustrace-mobile.png) — the responsive public dry-run entry path.
+
+The checked gallery images in [`docs/assets/`](assets/) can be reproduced while the local Vite server is running:
+
+```bash
+node scripts/capture-submission-gallery.mjs http://127.0.0.1:4177/
+```
+
+The script controls a temporary headless Edge/Chrome profile through the local DevTools protocol, writes five synthetic-data screenshots, and deletes the temporary profile when finished. Set `BROWSER_PATH` when the browser is not in a standard Windows installation path.
 
 ## Pre-publication audit
 
