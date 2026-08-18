@@ -46,6 +46,13 @@ See [`docs/provider-integrations.md`](docs/provider-integrations.md) for the thr
 
 The redacted, machine-readable live-provider acceptance record is in [`evidence/provider-acceptance-2026-08-19.json`](evidence/provider-acceptance-2026-08-19.json). It records real provider responses and account-side usage without request IDs, keys, or customer data.
 
+## Submission materials
+
+- [`docs/devpost-submission-draft.md`](docs/devpost-submission-draft.md) contains the evidence-bounded Devpost copy and pre-publication audit.
+- [`docs/demo-script.md`](docs/demo-script.md) contains the 3:20 demo storyboard and recording safety checklist.
+
+Both are drafts. Neither authorizes publishing a Devpost submission or a public video.
+
 ## Synthetic document
 
 The checked source text is in [`fixtures/synthetic-api-change-addendum.md`](fixtures/synthetic-api-change-addendum.md). The generated PDF is fictional and contains no customer or confidential data.
