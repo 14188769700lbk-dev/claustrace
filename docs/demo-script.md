@@ -2,6 +2,17 @@
 
 Target length: 3 minutes 20 seconds. Record only synthetic data. Do not show provider dashboards, environment files, request IDs, email addresses, or keys.
 
+The checked narration source is [`demo-narration.ssml`](demo-narration.ssml). A local image-based draft can be rendered without publishing anything:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/synthesize-demo-narration.ps1
+python -m pip install moviepy==2.2.1
+python scripts/render-demo-video.py
+python scripts/verify-demo-video.py
+```
+
+The ignored outputs are `artifacts/ClauseTrace-demo-draft.mp4` and a five-point visual QA contact sheet. The verifier fully decodes the video and audio, checks duration, frame rate, resolution, and non-silent audio, and samples every chapter. The final public video should replace still-image chapters with captured product interaction where practical; uploading it remains a separate account-owner confirmation.
+
 ## 0:00–0:20 — Problem and boundary
 
 **Screen:** ClauseTrace landing state and synthetic-document notice.

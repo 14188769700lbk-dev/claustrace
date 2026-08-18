@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+  <prosody rate="-3%">
+    Migration teams receive critical constraints in PDFs, while engineers work in tickets, schemas, and pull requests. ClauseTrace turns a change notice into cited migration controls without pretending that an AI has made a legal decision. This demonstration uses a fictional API addendum. ClauseTrace organizes evidence for human review and never authorizes a production migration.
+    <break time="700ms" />
+    On the trusted-server path, Nutrient Data Extraction maps the PDF into a strict typed schema. The recorded acceptance run recovered all six required demonstration fields. Each value stays attached to the provider's source block, page bounding box, match label, and relative confidence score. We call it a relative score, not a probability. If the provider omits a score, ClauseTrace does not turn that absence into zero. The public screen shown here is the checked synthetic fixture, visibly labeled so it is not confused with a live provider response.
+    <break time="700ms" />
+    Next, SerpApi performs a narrow Google Search against an explicit official-domain allowlist. The real acceptance query returned ten official-domain results. Search can reveal current guidance, but a title or snippet is not proof. Every result enters as discovered. It can affect approval only after a reviewer opens the official page and records a digest of the reviewed source. The fixture demonstrates the same boundary with one allowlisted source and one result outside the allowlist.
+    <break time="700ms" />
+    The source says that the customer confirms receipt, but it does not define the approval channel. ClauseTrace keeps those unresolved terms instead of smoothing them into a confident answer. A correction becomes an append-only review event and never overwrites the original extraction. Missing citations, low-confidence required fields, and unresolved contradictions keep the case in needs review, so the system cannot silently advance it.
+    <break time="700ms" />
+    Accepted clauses map to engineering controls such as a forty-five-day compatibility window, recorded notice timing, a named approval owner, and a tested rollback within thirty minutes. Nutrient Document Web Services Processor then builds the evidence packet. The live acceptance run produced a valid one-page PDF from the synthetic case. The public dry run produces this deterministic draft: five accepted fields, three proposed controls, five unresolved items, and a two-record search manifest. It is explicitly not sealed, and the unresolved contradiction remains visible by design.
+    <break time="700ms" />
+    The public React client contains no provider keys and cannot perform live provider mutations. Those routes stay in the trusted Express server and fail closed without server-only credentials. The repository includes a redacted provider acceptance record, thirty-three passing tests, production-bundle checks, and a full Git-history secret scan.
+    <break time="700ms" />
+    ClauseTrace makes the risky gaps visible: extraction is not acceptance, search is not evidence, and a packet is not permission to migrate. The source, synthetic PDF, public dry run, and reproducible acceptance evidence are available under the Apache Two point Zero license.
+  </prosody>
+</speak>
