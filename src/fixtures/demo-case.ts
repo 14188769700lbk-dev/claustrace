@@ -22,6 +22,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.99,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 118, top: 92, right: 478, bottom: 121 },
           quote: "Fictional API Data Change Addendum",
@@ -38,6 +39,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.97,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 142, top: 300, right: 474, bottom: 338 },
           quote: "keep both fields readable for 45 calendar days",
@@ -54,6 +56,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.94,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 142, top: 351, right: 472, bottom: 388 },
           quote: "written notice at least 14 calendar days before enabling",
@@ -70,6 +73,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.93,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 142, top: 372, right: 478, bottom: 402 },
           quote: "Customer Data Platform Owner must record approval",
@@ -86,6 +90,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.96,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 142, top: 512, right: 479, bottom: 554 },
           quote: "tested rollback that restores the previous response shape within 30 minutes",
@@ -102,6 +107,7 @@ export const demoCase: ClauseTraceCase = {
       confidence: 0.54,
       citations: [
         {
+          grounding: "synthetic_quote",
           page: 1,
           bounds: { left: 142, top: 667, right: 476, bottom: 704 },
           quote: "Customer confirms receipt is not defined",

@@ -21,7 +21,7 @@ export function renderSyntheticPacketHtml(caseFile: ClauseTraceCase): string {
         <tr>
           <th>${escapeHtml(field.label)}</th>
           <td>${escapeHtml(renderValue(field.value))}</td>
-          <td>${Math.round(field.confidence * 100)}%</td>
+          <td>${field.confidence === undefined ? "No score" : `${Math.round(field.confidence * 100)}% fixture score`}</td>
           <td>${field.citations.length}</td>
         </tr>`,
     )

@@ -59,10 +59,19 @@ function displayValue(field: ExtractedField): string {
   return JSON.stringify(field.value);
 }
 
-function confidenceTone(confidence: number): "good" | "warn" | "bad" {
+function confidenceTone(confidence?: number): "good" | "warn" | "bad" {
+  if (confidence === undefined) return "warn";
   if (confidence >= 0.9) return "good";
   if (confidence >= 0.8) return "warn";
   return "bad";
+}
+
+function confidenceLabel(field: ClauseTraceCase["fields"][number]): string {
+  if (field.confidence === undefined) return "No provider score";
+  if (field.provenance === "nutrient") {
+    return `Relative score ${field.confidence.toFixed(2)}`;
+  }
+  return `${Math.round(field.confidence * 100)}% fixture score`;
 }
 
 export function App() {
@@ -224,7 +233,7 @@ export function App() {
                     <strong>{displayValue(field)}</strong>
                   </span>
                   <span className={`confidence confidence-${confidenceTone(field.confidence)}`}>
-                    {Math.round(field.confidence * 100)}%
+                    {confidenceLabel(field)}
                   </span>
                   <ChevronRight size={15} />
                 </button>
@@ -253,7 +262,11 @@ export function App() {
                   selectedField.citations.map((citation) => (
                     <div className="citation" key={`${selectedField.id}-${citation.page}`}>
                       <span>Page {citation.page}</span>
-                      <blockquote>“{citation.quote}”</blockquote>
+                      <blockquote>
+                        {citation.quote
+                          ? `“${citation.quote}”`
+                          : `Nutrient coordinate grounding (${citation.match ?? "match unavailable"})`}
+                      </blockquote>
                       <code>
                         bounds {citation.bounds.left}, {citation.bounds.top},{" "}
                         {citation.bounds.right}, {citation.bounds.bottom}

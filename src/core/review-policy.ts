@@ -22,7 +22,9 @@ function hasUsableCitation(field: ClauseTraceCase["fields"][number]): boolean {
   return field.citations.some(
     (citation) =>
       citation.page > 0 &&
-      citation.quote.trim().length > 0 &&
+      (citation.grounding === "nutrient_bbox"
+        ? citation.match !== "not_found"
+        : Boolean(citation.quote?.trim())) &&
       citation.bounds.right > citation.bounds.left &&
       citation.bounds.bottom > citation.bounds.top,
   );
@@ -67,7 +69,10 @@ export function evaluateApproval(caseRecord: ClauseTraceCase): PolicyBlocker[] {
       });
     }
 
-    if (field.confidence < MIN_REQUIRED_CONFIDENCE) {
+    if (
+      field.confidence !== undefined &&
+      field.confidence < MIN_REQUIRED_CONFIDENCE
+    ) {
       blockers.push({
         code: "low_confidence",
         fieldId: field.id,

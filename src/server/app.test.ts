@@ -30,7 +30,7 @@ afterEach(async () => {
 });
 
 describe("trusted server routes", () => {
-  it("reports only capability booleans and keeps extraction unavailable", async () => {
+  it("reports only capability booleans and keeps extraction key-specific", async () => {
     const baseUrl = await startApp(
       createApp({
         environment: {
@@ -45,19 +45,20 @@ describe("trusted server routes", () => {
 
     expect(payload.providers).toEqual({
       nutrientBuildConfigured: true,
-      nutrientExtractionAvailable: false,
+      nutrientExtractionContractVerified: true,
+      nutrientExtractionConfigured: false,
       serpApiConfigured: false,
     });
     expect(JSON.stringify(payload)).not.toContain("configured-test-value");
 
-    const extraction = await fetch(`${baseUrl}/api/live/extract`, {
+    const extraction = await fetch(`${baseUrl}/api/live/extract-synthetic`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: "{}",
+      body: JSON.stringify({ confirm: "EXTRACT SYNTHETIC DOCUMENT" }),
     });
-    expect(extraction.status).toBe(501);
+    expect(extraction.status).toBe(503);
     await expect(extraction.json()).resolves.toMatchObject({
-      error: "provider_contract_unverified",
+      error: "provider_not_configured",
     });
   });
 
@@ -189,6 +190,82 @@ describe("trusted server routes", () => {
     expect(new Uint8Array(await confirmed.arrayBuffer()).slice(0, 5)).toEqual(
       new TextEncoder().encode("%PDF-"),
     );
+    expect(providerFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("extracts only the checked synthetic PDF after exact confirmation", async () => {
+    const providerFetch = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          status: 200,
+          requestId: "route-extract-1",
+          output: {
+            data: {
+              documentTitle: "Fictional API Data Change Addendum",
+              compatibilityWindowDays: 45,
+              noticeDeadline: "14 calendar days",
+              approvalOwner: "Customer Data Platform Owner",
+              rollbackRequirement: "Restore within 30 minutes",
+              unresolvedTerms: ["receipt confirmation channel"],
+            },
+            metadata: {
+              documentTitle: {
+                bbox: { x: 10, y: 20, width: 100, height: 12 },
+                match: "id_match",
+                confidence: 0.91,
+                pageNumber: 1,
+              },
+            },
+            pages: [{ page: 1, width: 1200, height: 1697 }],
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    ) as unknown as typeof fetch;
+    const baseUrl = await startApp(
+      createApp({
+        environment: {
+          NUTRIENT_API_KEY: "",
+          NUTRIENT_EXTRACTION_API_KEY: "test-value",
+          SERPAPI_API_KEY: "",
+        },
+        fetchImpl: providerFetch,
+        now: () => new Date("2026-08-18T16:40:00.000Z"),
+      }),
+    );
+
+    const unconfirmed = await fetch(
+      `${baseUrl}/api/live/extract-synthetic`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ confirm: "yes" }),
+      },
+    );
+    expect(unconfirmed.status).toBe(400);
+    expect(providerFetch).not.toHaveBeenCalled();
+
+    const confirmed = await fetch(
+      `${baseUrl}/api/live/extract-synthetic`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ confirm: "EXTRACT SYNTHETIC DOCUMENT" }),
+      },
+    );
+    const payload = await confirmed.json();
+
+    expect(confirmed.status).toBe(200);
+    expect(payload.provider).toBe("nutrient");
+    expect(payload.fields).toHaveLength(6);
+    expect(payload.fields[0]).toMatchObject({
+      key: "documentTitle",
+      provenance: "nutrient",
+      confidence: 0.91,
+    });
     expect(providerFetch).toHaveBeenCalledTimes(1);
   });
 });

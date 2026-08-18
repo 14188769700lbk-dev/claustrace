@@ -39,10 +39,12 @@ The static Vite client is a no-login dry run. Live Nutrient and SerpApi adapters
 
 - SerpApi Google Search is implemented server-side against the documented `q`, `api_key`, `search_metadata`, and `organic_results` contract. Results enter the review queue as `discovered`; a snippet is never treated as verified evidence.
 - Nutrient DWS packet generation is implemented server-side against the documented authenticated multipart `POST /build` contract. The route only renders the checked synthetic case and requires the exact confirmation `BUILD SYNTHETIC PACKET` because a real request can consume provider credits.
-- Nutrient `/extract` is deliberately unavailable. Its current authenticated request schema and this account's entitlement have not been verified, so the server returns `501 provider_contract_unverified` instead of inventing a request or relabeling fixtures.
+- Nutrient Data Extraction is implemented against the documented multipart `POST /extraction/extract` contract with a separate product key. Citation boxes and match labels are preserved without fabricating quotation text; an omitted confidence remains “no provider score,” not zero.
 - The SerpApi free plan shown during account setup is non-commercial. This prototype does not claim a production or commercial-use entitlement; current plan terms must be checked before customer work.
 
 See [`docs/provider-integrations.md`](docs/provider-integrations.md) for the threat boundary, routes, and acceptance gates.
+
+The redacted, machine-readable live-provider acceptance record is in [`evidence/provider-acceptance-2026-08-19.json`](evidence/provider-acceptance-2026-08-19.json). It records real provider responses and account-side usage without request IDs, keys, or customer data.
 
 ## Synthetic document
 

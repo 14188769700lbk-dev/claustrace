@@ -15,6 +15,11 @@ export interface ExtractionResponse {
   providerRequestId: string;
   fields: ExtractedField[];
   receivedAt: string;
+  usage?: {
+    creditsCost: number;
+    remainingCredits: number;
+    pagesProcessed?: number;
+  };
 }
 
 export interface SearchRequest {

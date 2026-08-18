@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+
 import express, { type Response } from "express";
 import { z } from "zod";
 
@@ -7,7 +10,10 @@ import {
 } from "../core/idempotency.js";
 import { createFreshDemoCase } from "../fixtures/demo-case.js";
 import { renderSyntheticPacketHtml } from "./packet-html.js";
-import { NutrientBuildProvider } from "./providers/nutrient.js";
+import {
+  NutrientBuildProvider,
+  NutrientExtractionProvider,
+} from "./providers/nutrient.js";
 import { SafeProviderError } from "./providers/provider-error.js";
 import { SerpApiSearchProvider } from "./providers/serpapi.js";
 
@@ -27,10 +33,65 @@ const buildBodySchema = z
   .object({ confirm: z.literal("BUILD SYNTHETIC PACKET") })
   .strict();
 
+const extractBodySchema = z
+  .object({ confirm: z.literal("EXTRACT SYNTHETIC DOCUMENT") })
+  .strict();
+
+const clauseTraceExtractionSchema = {
+  type: "object",
+  properties: {
+    documentTitle: {
+      type: "string",
+      title: "Document title",
+      description: "Title of the contract addendum or API change notice.",
+    },
+    compatibilityWindowDays: {
+      type: "integer",
+      title: "Compatibility window days",
+      description:
+        "Number of calendar days the previous and new response fields must remain readable.",
+    },
+    noticeDeadline: {
+      type: "string",
+      title: "Notice deadline",
+      description: "Required notice period before production enablement.",
+    },
+    approvalOwner: {
+      type: "string",
+      title: "Approval owner",
+      description: "Role that must record approval before production migration.",
+    },
+    rollbackRequirement: {
+      type: "string",
+      title: "Rollback requirement",
+      description: "Required rollback behavior and time limit.",
+    },
+    unresolvedTerms: {
+      type: "array",
+      title: "Unresolved terms",
+      description:
+        "Terms the document explicitly leaves undefined or requiring clarification.",
+      items: { type: "string" },
+    },
+  },
+  required: [
+    "documentTitle",
+    "compatibilityWindowDays",
+    "noticeDeadline",
+    "approvalOwner",
+    "rollbackRequirement",
+    "unresolvedTerms",
+  ],
+} as const;
+
 export interface CreateAppOptions {
-  environment?: Pick<
-    NodeJS.ProcessEnv,
-    "NUTRIENT_API_KEY" | "SERPAPI_API_KEY"
+  environment?: Partial<
+    Pick<
+      NodeJS.ProcessEnv,
+      | "NUTRIENT_API_KEY"
+      | "NUTRIENT_EXTRACTION_API_KEY"
+      | "SERPAPI_API_KEY"
+    >
   >;
   fetchImpl?: FetchLike;
   now?: () => Date;
@@ -66,11 +127,14 @@ export function createApp(options: CreateAppOptions = {}) {
       mode: "trusted-server",
       providers: {
         nutrientBuildConfigured: Boolean(environment.NUTRIENT_API_KEY?.trim()),
-        nutrientExtractionAvailable: false,
+        nutrientExtractionContractVerified: true,
+        nutrientExtractionConfigured: Boolean(
+          environment.NUTRIENT_EXTRACTION_API_KEY?.trim(),
+        ),
         serpApiConfigured: Boolean(environment.SERPAPI_API_KEY?.trim()),
       },
       boundary:
-        "Presence booleans only. Nutrient extraction is disabled until its contract and entitlement are verified.",
+        "Presence booleans only. Processor and Data Extraction use separate server-only credentials.",
     });
   });
 
@@ -143,12 +207,39 @@ export function createApp(options: CreateAppOptions = {}) {
     }
   });
 
-  app.post("/api/live/extract", (_request, response) => {
-    response.status(501).json({
-      error: "provider_contract_unverified",
-      message:
-        "Nutrient extraction remains disabled until its request contract and account entitlement are verified.",
-    });
+  app.post("/api/live/extract-synthetic", async (request, response) => {
+    const body = extractBodySchema.safeParse(request.body);
+    if (!body.success) {
+      response.status(400).json({
+        error: "confirmation_required",
+        message: "Exact synthetic-extraction confirmation is required.",
+      });
+      return;
+    }
+
+    try {
+      const provider = new NutrientExtractionProvider({
+        apiKey: environment.NUTRIENT_EXTRACTION_API_KEY ?? "",
+        fetchImpl: options.fetchImpl,
+        now: options.now,
+        parseMode: "structure",
+      });
+      const demo = createFreshDemoCase();
+      const documentBytes = new Uint8Array(
+        await readFile(
+          resolve("output/pdf/synthetic-api-change-addendum.pdf"),
+        ),
+      );
+      const result = await provider.extract({
+        documentBytes,
+        documentDigest: demo.documentDigest,
+        schema: clauseTraceExtractionSchema,
+        idempotencyKey: demo.documentDigest.replace(/^sha256:/, ""),
+      });
+      response.status(200).set("cache-control", "no-store").json(result);
+    } catch (error) {
+      sendProviderError(response, error);
+    }
   });
 
   app.use("/api", (_request, response) => {

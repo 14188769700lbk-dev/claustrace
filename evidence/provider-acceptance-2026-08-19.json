@@ -1,0 +1,75 @@
+{
+  "recordedAt": "2026-08-19T00:09:25+08:00",
+  "scope": "Synthetic hackathon data only; no customer or confidential document was transmitted.",
+  "serpApi": {
+    "liveRequestSucceeded": true,
+    "queryIntent": "Nutrient DWS data extraction citations confidence source coordinates",
+    "officialDomainAllowlist": ["nutrient.io"],
+    "resultCount": 10,
+    "officialDomainCount": 10,
+    "allResultsRemainDiscovered": true,
+    "sourceDigestsAbsentBeforeReview": true,
+    "dashboardUsageAfterAcceptance": "1 / 250 searches"
+  },
+  "nutrientProcessor": {
+    "liveBuildSucceeded": true,
+    "input": "Server-rendered HTML from checked synthetic fixtures",
+    "outputBytes": 32314,
+    "pageCount": 1,
+    "pdfHeaderValid": true,
+    "formsAbsent": true,
+    "javascriptAbsent": true,
+    "syntheticAndNoLegalAdviceNoticesPresent": true,
+    "visualQa": "pass",
+    "dashboardProcessedCredits": 0.5,
+    "dashboardRemainingCredits": 49.5
+  },
+  "nutrientDataExtraction": {
+    "accountPlan": "Free",
+    "startingCredits": 5000,
+    "endpoint": "POST https://api.nutrient.io/extraction/extract",
+    "parseMode": "structure",
+    "successfulAcceptanceRequests": 3,
+    "rejectedValidationRequests": [
+      {
+        "status": 400,
+        "reason": "The extract endpoint rejects parseConfig.mode=text; accepted modes are structure, understand, and agentic.",
+        "creditsConsumed": 0
+      },
+      {
+        "status": 400,
+        "reason": "The provider JSON Schema subset rejects the title annotation; ClauseTrace now strips it before transmission.",
+        "creditsConsumed": 0
+      }
+    ],
+    "lastResponse": {
+      "providerRequestIdPresent": true,
+      "pagesProcessed": 1,
+      "creditsCost": 7.5,
+      "remainingCredits": 4977.5,
+      "fieldCount": 6,
+      "requiredFieldCount": 6,
+      "valuesSemanticallyMatchCheckedFixture": true,
+      "allFieldsHaveRelativeScore": true,
+      "allFieldsHaveIdMatchCitation": true,
+      "allCitationBoundsValid": true,
+      "allFieldsUseNutrientProvenance": true,
+      "fabricatedQuotes": 0
+    },
+    "totalSuccessfulAcceptanceCredits": 22.5
+  },
+  "credentialBoundary": {
+    "keysStoredOnlyInIgnoredLocalEnv": true,
+    "keysReturnedToClient": false,
+    "keysPrintedToChatOrTerminal": false,
+    "realProductionDocumentsUsed": false
+  },
+  "clientQa": {
+    "desktopVisualQa": "pass",
+    "mobileViewport": "390x844",
+    "mobileDocumentClientWidth": 375,
+    "mobileDocumentScrollWidth": 375,
+    "horizontalOverflow": false,
+    "consoleErrorsOrWarnings": 0
+  }
+}

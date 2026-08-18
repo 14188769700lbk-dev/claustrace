@@ -13,19 +13,22 @@ export type ReviewState =
   | "sealed"
   | "sealing_failed";
 
-export type FieldKey =
-  | "documentTitle"
-  | "parties"
-  | "effectiveDate"
-  | "affectedSystems"
-  | "affectedFields"
-  | "compatibilityWindowDays"
-  | "noticeDeadline"
-  | "retentionConstraint"
-  | "approvalOwner"
-  | "rollbackRequirement"
-  | "prohibitedActions"
-  | "unresolvedTerms";
+export const fieldKeys = [
+  "documentTitle",
+  "parties",
+  "effectiveDate",
+  "affectedSystems",
+  "affectedFields",
+  "compatibilityWindowDays",
+  "noticeDeadline",
+  "retentionConstraint",
+  "approvalOwner",
+  "rollbackRequirement",
+  "prohibitedActions",
+  "unresolvedTerms",
+] as const;
+
+export type FieldKey = (typeof fieldKeys)[number];
 
 export interface CitationBounds {
   left: number;
@@ -37,7 +40,15 @@ export interface CitationBounds {
 export interface ExtractionCitation {
   page: number;
   bounds: CitationBounds;
-  quote: string;
+  grounding: "synthetic_quote" | "nutrient_bbox";
+  quote?: string;
+  match?:
+    | "id_match"
+    | "id_match_multiblock"
+    | "id_match_partial"
+    | "fuzzy_match"
+    | "not_found";
+  sourceBlockId?: string;
 }
 
 export interface ExtractedField {
@@ -46,7 +57,8 @@ export interface ExtractedField {
   label: string;
   value: JsonValue;
   required: boolean;
-  confidence: number;
+  /** Relative provider score when present; never present it as a probability. */
+  confidence?: number;
   citations: ExtractionCitation[];
   provenance: "synthetic_fixture" | "nutrient";
 }

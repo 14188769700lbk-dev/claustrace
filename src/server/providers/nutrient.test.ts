@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   NutrientBuildProvider,
-  nutrientExtractionUnavailable,
+  NutrientExtractionProvider,
 } from "./nutrient.js";
 import { SafeProviderError } from "./provider-error.js";
 
@@ -97,9 +97,183 @@ describe("NutrientBuildProvider", () => {
     ).rejects.toMatchObject({ code: "provider_response_invalid" });
   });
 
-  it("keeps extraction fail-closed until the contract is verified", () => {
-    expect(nutrientExtractionUnavailable).toThrowError(
-      /request contract and account entitlement are verified/,
+});
+
+describe("NutrientExtractionProvider", () => {
+  const schema = {
+    type: "object",
+    properties: {
+      documentTitle: {
+        type: "string",
+        title: "Document title",
+      },
+      compatibilityWindowDays: {
+        type: "integer",
+        title: "Compatibility window",
+      },
+    },
+    required: ["documentTitle", "compatibilityWindowDays"],
+  };
+
+  it("uses the documented /extraction/extract multipart contract", async () => {
+    let capturedInput: string | undefined;
+    let capturedInit: RequestInit | undefined;
+    const fetchImpl = vi.fn(async (input: URL | RequestInfo, init?: RequestInit) => {
+      capturedInput = input.toString();
+      capturedInit = init;
+      return new Response(
+        JSON.stringify({
+          status: 200,
+          requestId: "extract-request-9",
+          output: {
+            data: {
+              documentTitle: "Synthetic API Addendum",
+              compatibilityWindowDays: 45,
+            },
+            metadata: {
+              documentTitle: {
+                bbox: { x: 10, y: 20, width: 100, height: 12 },
+                match: "id_match",
+                confidence: 0.93,
+                pageNumber: 1,
+                source_bboxes: [
+                  {
+                    bbox: { x: 10, y: 20, width: 100, height: 12 },
+                    block_id: "block-1",
+                    pageNumber: 1,
+                  },
+                ],
+              },
+              compatibilityWindowDays: {
+                match: "not_found",
+              },
+            },
+            pages: [{ page: 1, width: 1200, height: 1697 }],
+          },
+          metrics: { pagesProcessed: 1 },
+          usage: {
+            data_extraction_credits: { cost: 7, remainingCredits: 835 },
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      );
+    }) as unknown as typeof fetch;
+    const provider = new NutrientExtractionProvider({
+      apiKey: "test-extraction-credential",
+      fetchImpl,
+      now: () => new Date("2026-08-18T16:30:00.000Z"),
+    });
+
+    const result = await provider.extract({
+      documentBytes: pdfBytes,
+      documentDigest: "sha256:test-document",
+      schema,
+      idempotencyKey: "extract-intent-123456",
+    });
+
+    expect(capturedInput).toBe(
+      "https://api.nutrient.io/extraction/extract",
     );
+    expect(new Headers(capturedInit?.headers).get("authorization")).toBe(
+      "Bearer test-extraction-credential",
+    );
+    const form = capturedInit?.body as FormData;
+    expect(form.get("file")).toBeInstanceOf(Blob);
+    expect(JSON.parse(String(form.get("instructions")))).toEqual({
+      schema: {
+        ...schema,
+        properties: {
+          documentTitle: {
+            type: "string",
+          },
+          compatibilityWindowDays: {
+            type: "integer",
+          },
+        },
+      },
+      parseConfig: { mode: "structure" },
+      options: { includeCitations: true },
+    });
+    expect(result).toMatchObject({
+      provider: "nutrient",
+      providerRequestId: "extract-request-9",
+      receivedAt: "2026-08-18T16:30:00.000Z",
+      usage: {
+        creditsCost: 7,
+        remainingCredits: 835,
+        pagesProcessed: 1,
+      },
+    });
+    expect(result.fields[0]).toMatchObject({
+      key: "documentTitle",
+      label: "Document title",
+      value: "Synthetic API Addendum",
+      required: true,
+      confidence: 0.93,
+      provenance: "nutrient",
+      citations: [
+        {
+          grounding: "nutrient_bbox",
+          match: "id_match",
+          page: 1,
+          bounds: { left: 10, top: 20, right: 110, bottom: 32 },
+          sourceBlockId: "block-1",
+        },
+      ],
+    });
+    expect(result.fields[1].confidence).toBeUndefined();
+    expect(result.fields[1].citations).toEqual([]);
+  });
+
+  it("rejects unsupported schema fields before spending provider credits", async () => {
+    const providerFetch = vi.fn();
+    const provider = new NutrientExtractionProvider({
+      apiKey: "test-value",
+      fetchImpl: providerFetch,
+    });
+
+    await expect(
+      provider.extract({
+        documentBytes: pdfBytes,
+        documentDigest: "sha256:test-document",
+        schema: {
+          type: "object",
+          properties: { inventedField: { type: "string" } },
+        },
+        idempotencyKey: "extract-key",
+      }),
+    ).rejects.toMatchObject({ code: "provider_request_rejected" });
+    expect(providerFetch).not.toHaveBeenCalled();
+  });
+
+  it("redacts extraction credentials and provider error bodies", async () => {
+    const credential = "extraction-credential-must-not-appear";
+    const provider = new NutrientExtractionProvider({
+      apiKey: credential,
+      fetchImpl: vi.fn(async () =>
+        new Response(`rejected ${credential}`, { status: 403 }),
+      ) as unknown as typeof fetch,
+    });
+
+    let caught: unknown;
+    try {
+      await provider.extract({
+        documentBytes: pdfBytes,
+        documentDigest: "sha256:test-document",
+        schema,
+        idempotencyKey: "extract-key",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(SafeProviderError);
+    expect((caught as Error).message).toBe(
+      "Nutrient extraction rejected the request with HTTP 403.",
+    );
+    expect((caught as Error).message).not.toContain(credential);
   });
 });
