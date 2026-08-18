@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractionIdempotencyKey,
   normalizeSearchIntent,
+  packetBuildIdempotencyKey,
   searchIdempotencyKey,
 } from "./idempotency.js";
 
@@ -43,6 +44,12 @@ describe("stable provider intent digests", () => {
         "DOCS.EXAMPLE.COM",
         "www.example.com",
       ]),
+    );
+  });
+
+  it("changes packet keys when the packet HTML changes", () => {
+    expect(packetBuildIdempotencyKey("<p>one</p>")).not.toBe(
+      packetBuildIdempotencyKey("<p>two</p>"),
     );
   });
 });

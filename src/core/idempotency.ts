@@ -63,3 +63,7 @@ export function searchIdempotencyKey(
     normalizeSearchIntent(query, officialDomains),
   );
 }
+
+export function packetBuildIdempotencyKey(html: string): string {
+  return stableDigest("claustrace:packet-build:v1", { html });
+}

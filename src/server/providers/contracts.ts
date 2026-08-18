@@ -38,3 +38,19 @@ export interface ExtractorProvider {
 export interface SearchProvider {
   search(request: SearchRequest): Promise<SearchResponse>;
 }
+
+export interface PacketBuildRequest {
+  html: string;
+  idempotencyKey: string;
+}
+
+export interface PacketBuildResponse {
+  provider: "nutrient";
+  providerRequestId: string;
+  pdfBytes: Uint8Array;
+  receivedAt: string;
+}
+
+export interface PacketBuilderProvider {
+  buildPacket(request: PacketBuildRequest): Promise<PacketBuildResponse>;
+}
